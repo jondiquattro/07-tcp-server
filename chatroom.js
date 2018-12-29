@@ -1,26 +1,15 @@
 'use strict';
-
-// First Party Modules
-const net = require('net');
-
-// Third Party Modules
-const uuid = require('uuid/v4');
+const{server, socketPopulate,socketPool}=require('./event-logger.js');
 
 const port = process.env.PORT || 3001;
-const server = net.createServer();
-const socketPool = {};
+
 const commands = {};
 
-server.on('connection', (socket) => {
-  let id = uuid();
-  socketPool[id] = {
-    id:id,
-    nickname: `User-${id}`,
-    socket: socket,
-  };
-  socket.on('data', (buffer) => dispatchAction(id, buffer));
-});
+//modularize this
 
+socketPopulate();
+
+//modularize this
 let parse = (buffer) => {
   let text = buffer.toString().trim();
   if ( !text.startsWith('@') ) { return null; }
@@ -30,6 +19,7 @@ let parse = (buffer) => {
 };
 
 let dispatchAction = (userId, buffer) => {
+  // function dispatchAction(userId, buffer){
   let entry = parse(buffer);
   if ( entry && typeof commands[entry.command] === 'function' ) {
     commands[entry.command](entry, userId);
@@ -50,3 +40,8 @@ commands['@nick'] =  (data, userId) => {
 server.listen(port, () => {
   console.log(`Chat Server up on ${port}`);
 });
+//httpie command
+//http http://localhost:8080/
+//http http://localhost:8080/err
+//http http://localhost:8080/foo
+  module.exports={dispatchAction};
