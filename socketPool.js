@@ -1,47 +1,42 @@
 'use strict';
-// const{}=require('./chatroom.js');
-// const{commands}=require('./event.js');
+const{parse}=require('./parse.js');
 
+//Third Party Modules
 const uuid = require('uuid/v4');
-
 const net = require('net');
-// Third Party Modules
 const server = net.createServer();
 
+//Global Objects
 const socketPool = {};
 const commands = {};
 
 
-let parse = (buffer) => {
-    let text = buffer.toString().trim();
-    if ( !text.startsWith('@') ) { return null; }
-    let [command,payload] = text.split(/\s+(.*)/);
-    let [target,message] = payload.split(/\s+(.*)/);
-    return {command,payload,target,message};
-  };
-
-
-
-
-server.on('connection', (socket) => {//built in event to net
+//connection event
+server.on('connection', (socket) => {//creates the objects in socket pool
     let id = uuid();
-  
     socketPool[id] = {
       id:id,
       nickname: `User-${id}`,
       socket: socket,
     };
-    socket.on('data', (buffer) => dispatchAction(id, buffer));
+    socket.on('data', (buffer) => dispatchAction(id, buffer));//every time someone types this is triggered
+    
+
   });
 
-  let dispatchAction = (userId, buffer) => {
-    let entry = parse(buffer);//how is this not a function
 
+  //executes action input from user
+  let dispatchAction = (userId, buffer) => {//new buffer is created via data event
+    let entry = parse(buffer);
     if ( entry && typeof commands[entry.command] === 'function' ) {
       commands[entry.command](entry, userId);
     }
   };
+// let removeUser = (data)=>{
+//   console.log(data);
 
+//   // delete socketPool[entry.target];
+// };
 
 
 module.exports={server, commands, socketPool,dispatchAction, parse}
