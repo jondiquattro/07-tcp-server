@@ -1,47 +1,51 @@
 'use strict';
-const{server, socketPopulate,socketPool}=require('./event-logger.js');
 
+//imports modules
+const events = require('./events.js');
+const{parse}=require('./parse.js');
+
+//imports commands
+
+const dmUsers=require('./commands/dm');
+const addId=require('./commands/nicknames');
+const atAll=require('./commands/to-all-users');
+const listAll=require('./commands/list-all');
+
+
+const{server,commands,dispatchAction}=require('./socketPool.js');
 const port = process.env.PORT || 3001;
 
-const commands = {};
+//server functions from 
+server;
+parse;
+dispatchAction;
 
-//modularize this
 
-socketPopulate();
-
-//modularize this
-let parse = (buffer) => {
-  let text = buffer.toString().trim();
-  if ( !text.startsWith('@') ) { return null; }
-  let [command,payload] = text.split(/\s+(.*)/);
-  let [target,message] = payload.split(/\s+(.*)/);
-  return {command,payload,target,message};
-};
-
-let dispatchAction = (userId, buffer) => {
-  // function dispatchAction(userId, buffer){
-  let entry = parse(buffer);
-  if ( entry && typeof commands[entry.command] === 'function' ) {
-    commands[entry.command](entry, userId);
-  }
-};
 
 commands['@all'] =  (data, userId) => {
-  for( let connection in socketPool ) {
-    let user = socketPool[connection];
-    user.socket.write(`<${socketPool[userId].nickname}>: ${data.payload}\n`);
-  }
-};
+  events.emit('atAll', data, userId);
+}
+
+commands['@list']= (data,userId)=>{
+  events.emit('listAll', data, userId );
+}
 
 commands['@nick'] =  (data, userId) => {
-  socketPool[userId].nickname = data.target;
+  events.emit('addId', data,userId);
+  
 };
+commands['@dm']= (data, userId)=>{
+  events.emit('dmUsers', data, userId);
+}
+// commands['@close']=(data, userId)=>{
+ 
+//   socketPool[data.target.nickname].socket.emit('close'); 
+//   socketPool[data.target.nickname].socket.on('close', ()=>{
+//     delete socketPool[data.target];
+//   })
 
+// }
 server.listen(port, () => {
   console.log(`Chat Server up on ${port}`);
 });
-//httpie command
-//http http://localhost:8080/
-//http http://localhost:8080/err
-//http http://localhost:8080/foo
-  module.exports={dispatchAction};
+
