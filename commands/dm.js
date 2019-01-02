@@ -1,13 +1,22 @@
 'use strict';
-const event = require('../events.js')
-const{parse}=require('../parse');
-const{commands,socketPool} = require('../socketPool')
+const events = require('../events.js')
+const{commands, socketPool}=require('../socketPool.js');
+
+const{parse}=require('../parse.js');
 
   let dmUsers = (data, userId) =>{
-    console.log(socketPool.nickname[data.target], 'called from dm')
-    socketPool.nickname[data.target].socket.userId(data.message)
-    // socketPool[data.target].socket.write(data.message);//when parse runs you can access message through the data propert
+    // console.log(socketPool.nickname[data.target], 'called from dm')
+    // socketPool.nickname[data.target].socket.userId(data.message)
+    // console.log(data);
+    console.log(socketPool);
+    console.log(socketPool);
+
+
+
+    socketPool[data.target].socket.write(data.message);//when parse runs you can access message through the data propert
   }
-  event.on('dmUsers', dmUsers);
+
+
+  events.on('dmUsers', dmUsers);
 
   module.exports=dmUsers;

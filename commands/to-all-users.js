@@ -1,16 +1,17 @@
 'use strict';
-const event = require('../events.js')
-// const{socketPool} = require('../socketPool.js')
+const events = require('../events.js')
 const{commands, socketPool}=require('../socketPool.js');
+// const{parse}=require('../parse.js');
 
-const{parse}=require('../parse.js');
 
-
-  let addId = (data,userId) =>{
-    socketPool[userId].nickname = data.target;
-
+  let atAll = (data,userId) =>{
+      for( let connection in socketPool ) {
+    let user = socketPool[connection];
+    user.socket.write(`<${socketPool[userId].nickname}>: ${data.payload}\n`);
+  }
+//writes to a specific user but is used for every user resulting in all
   }
 
-  event.on('addId', addId);
+  events.on('atAll', atAll);
 
-  module.exports=addId;
+  module.exports=atAll;

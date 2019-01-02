@@ -1,6 +1,7 @@
 'use strict';
 const{parse}=require('./parse.js');
 
+
 //Third Party Modules
 const uuid = require('uuid/v4');
 const net = require('net');
@@ -21,7 +22,6 @@ server.on('connection', (socket) => {//creates the objects in socket pool
     };
     socket.on('data', (buffer) => dispatchAction(id, buffer));//every time someone types this is triggered
     
-
   });
 
 
